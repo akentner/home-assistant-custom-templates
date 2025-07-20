@@ -1,0 +1,20 @@
+{# 
+    {%- from 'entity.jinja' import debug -%}
+#}
+
+{%- macro debug(entity_id) -%}
+  {% set entity = states[entity_id] %}
+  {%- if entity is defined -%}
+### `{{ entity.entity_id }}` ###
+**State:** {{ entity.state }}
+
+#### Attributes: ####
+{%- for attribute, value in entity.attributes.items() %}
+  - **{{ attribute }}:** {{ value }}
+{%- endfor -%}
+  {%- else -%}
+    Entity '{{ entity_id }}' not found!
+  {%- endif -%}
+{%- endmacro -%}
+
+

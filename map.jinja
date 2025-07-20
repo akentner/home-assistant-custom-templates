@@ -1,0 +1,25 @@
+{%- macro compass_direction(azimuth, resolution=2) -%}
+    {%- set directions = {
+        1: ['N', 'O', 'S', 'W'],
+        2: ['N', 'NO', 'O', 'SO', 'S', 'SW', 'W', 'NW'],
+        3: ['N', 'NNO', 'NO', 'ONO', 'O', 'OSO', 'SO', 'SSO', 'S', 'SSW', 'SW', 'WSW', 'W', 'WNW', 'NW', 'NNW']
+    } -%}
+    {{- directions[resolution][_sector_index(azimuth, resolution)|int] -}}
+{%- endmacro -%}
+
+{%- macro compass_direction_full(azimuth, resolution=2) -%}
+    {%- set directions = {
+        1: ['Norden', 'Osten', 'Süden', 'Westen'],
+        2: ['Norden', 'Nord-Osten', 'Osten', 'Süd-Osten', 'Süden', 'Süd-Westen', 'Westen', 'Nord-Westen'],
+        3: ['Norden', 'Nord-Nord-Osten', 'Nord-Osten', 'Ost-Nord-Osten', 'Osten', 'Ost-Süd-Osten', 'Süd-Osten', 'Süd-Süd-Osten', 'Süden', 'Süd-Süd-Westen', 'Süd-Westen', 'West-Süd-Westen', 'Westen', 'West-Nord-Westen', 'Nord-Westen', 'Nord-Nord-Westen']
+    } -%}
+    {{- directions[resolution][_sector_index(azimuth, resolution)|int] -}}
+{%- endmacro -%}
+
+
+{%- macro _sector_index(azimuth, resolution=2) -%}
+    {%- set direction_count = 2 ** (resolution + 1) %}
+    {%- set sector_size = 360 / direction_count -%}
+    {%- set sector_index = ((azimuth + (sector_size / 2)) / sector_size) | int -%}
+    {{ iif(sector_index == direction_count, 0, sector_index) }}
+{%- endmacro -%}

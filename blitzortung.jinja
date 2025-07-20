@@ -1,0 +1,45 @@
+{%- from 'map.jinja' import compass_direction_full -%}
+
+{%- set mapping = {
+    "Keine": {"color":"#008000", "icon": "mdi:priority-low"},
+    "100km Umkreis": {"color":"#FF9800", "icon": "mdi:priority-low"},
+    "50km Umkreis": {"color":"#DB4437", "icon": "mdi:priority-high"},
+    "25km Umkreis": {"color":"#FF00FF", "icon": "mdi:priority-high"},
+} -%}
+
+{%- macro _get(severity, attr, default) -%}
+    {%- set item = mapping.get(severity | trim) or {} -%}
+    {{- item.get(attr | trim) or default -}}
+{%- endmacro -%}
+
+{%- macro color(severity) -%}
+    {{- _get(severity, 'color', 'none') -}}
+{%- endmacro -%}
+
+{%- macro icon(severity) -%}
+    {{- _get(severity, 'icon', 'mdi:priority-low') -}} 
+{%- endmacro -%}
+
+{%- macro text() -%}
+{%- if states("sensor.blitzortung_100km_lightning_counter")|int > 0 -%} 
+In den letzten 30min sind {{states("sensor.blitzortung_100km_lightning_counter")}} Blitze im Umkreis von 100km gemeldet worden.
+{{ _part_text(25) }}
+{{ _part_text(50) }}
+{{ _part_text(100) }}
+{%- else -%} 
+In den letzten 30min sind keine Blitze im Umkreis von 100km
+gemeldet worden. 
+{%- endif -%}
+{%- endmacro -%}
+
+{%- macro _part_text(distance) -%}
+{%- if has_value('sensor.blitzortung_'+distance|string+'km_lightning_distance') %}
+Umkreis {{distance}}km: 
+Gewitter mit bisher {{states('sensor.blitzortung_'+distance|string+'km_lightning_counter')}} Blitzen ({{states('sensor.blitzortung_'+distance|string+'km_lightning_counter_per_min') -}}↯/s)
+Letzter Blitz vor {{ states.sensor['blitzortung_'+distance|string+'km_lightning_distance'].last_changed | relative_time }} in {{ states('sensor.blitzortung_'+distance|string+'km_lightning_distance') -}}km Entfernung aus Richtung {{ compass_direction_full(states('sensor.blitzortung_'+distance|string+'km_lightning_azimuth')|int) }}
+{%- else %} 
+Umkreis {{distance}}km: 
+Keine Blitze gemeldet
+{%- endif %}
+{%- endmacro -%}
+

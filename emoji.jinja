@@ -1,0 +1,39 @@
+{% set base_url = "https://cdnjs.cloudflare.com/ajax/libs/twemoji/14.0.2" %}
+{#% set base_url = "https://ha.akentner.de/local/emoji/openmoji/color" %#}
+{% set use_uppercase = false %}
+
+{% set name_mapping = {
+  'warning': '26A0'
+} %}
+
+
+{%- macro _emoji_code(emoji, uppercase = false) -%}
+  {%- if uppercase -%}
+    {{ ("%0x" | format( emoji[0] | ord | int)) | upper }}
+  {%- else -%}
+    {{ ("%0x" | format( emoji[0] | ord | int)) }}
+  {%- endif -%}
+{%- endmacro -%}
+
+{%- macro is_emoji(emoji) -%}
+    {{- ((emoji[0] | ord) >= 0x203c) | bool -}}
+{%- endmacro -%}
+
+{%- macro remove_emoji(input_string) -%}
+    {%- set emoji = input_string[0] -%}
+    {{- iif(is_emoji(emoji) == 'True', (input_string[2:] | trim), input_string) -}}
+{%- endmacro -%}
+
+{%- macro emoji_to_png(emoji) -%}
+  {%- if is_emoji(emoji) | bool -%}
+    {% set emoji_code = _emoji_code(emoji, use_uppercase)  %}
+    {{- base_url ~ "/72x72/" ~ emoji_code ~ ".png" -}}
+  {%- endif -%}
+{%- endmacro -%}
+
+{%- macro emoji_to_svg(emoji) -%}
+  {%- if is_emoji(emoji) | bool -%}
+    {% set emoji_code = _emoji_code(emoji, use_uppercase)  %}
+    {{- base_url ~ "/svg/" ~ emoji_code ~ ".svg" -}}
+  {%- endif -%}
+{%- endmacro -%}

@@ -1,0 +1,143 @@
+{% from 'easy_time.jinja' import time_between %}
+
+{%- set mapping = {
+    "idle": {"icon": "mdi:phone-hangup", "color": "grey", "alert_type": "success"},
+    "calling": {"icon": "mdi:phone-outgoing", "color": "#8bbf68", "alert_type": "info"},
+    "notReached": {"icon": "mdi:phone-remove", "color": "#8bbf68", "alert_type": "warning"},
+    "ringing": {"icon": "mdi:phone-ring", "color": "#3092dc", "alert_type": "info"},
+    "missedCall": {"icon": "mdi:phone-remove", "color": "#e45f3b", "alert_type": "warning"},
+    "talking": {"icon": "mdi:phone", "color": "grey", "alert_type": "info"},
+    "finished": {"icon": "mdi:phone-hangup", "color": "grey", "alert_type": "success"},
+    "messageBox": {"icon": "mdi:phone-message", "color": "#e45f3b", "alert_type": "error"},
+} -%}
+
+{%- set numbers = {
+    "0691553333":   {"display": "HR3 Studio"},
+    "06181990133":  {"display": "Oma Helga / Opa Peter"},
+    "015776634113": {"display": "Oma Petra (Mobil)"},
+    "0610962830":   {"display": "Vögel alle"},
+    "061019899686": {"display": "Tante Irmgard"},
+    "01776415823":  {"display": "Ann-Ka (Mobil)"},
+    "01783278576":  {"display": "Alex (Mobil)"},
+    "0618184453":   {"display": "Christa Beilstein"},
+    "0618182627":   {"display": "Claudia Keil"},
+} -%}
+
+{%- macro resolve_name_by_caller_id(caller_id) -%}
+    {%- set resolved = numbers.get(caller_id) -%}
+    {%- if resolved -%}
+        {{- resolved.display }}
+    {%- else -%}
+        {{- caller_id -}}
+    {%- endif -%}
+{%- endmacro -%}
+
+{%- macro _status_mapping(status) -%}
+    {{- mapping.get(status) -}}
+{%- endmacro -%}
+
+{%- macro color_by_status(status) -%}
+    {{- mapping.get(status).color -}}
+{%- endmacro -%}
+
+{%- macro color_by_status_direction(status, direction) -%}
+    {%- if (status == 'finished' and direction == 'incoming')  -%}
+        #3092dc
+    {%- elif (status == 'finished' and direction == 'outgoing') -%}
+        #8bbf68
+    {%- else -%}
+      {{ color_by_status(status) }}
+    {%- endif -%}
+{%- endmacro -%}
+
+{%- macro icon_by_status(status) -%}
+    {{- mapping.get(status).icon -}}
+{%- endmacro -%}
+
+{%- macro icon_by_status_direction(status, direction) -%}
+    {%- if (status == 'finished') -%}
+      {{ icon_by_direction(direction) }}
+    {%- else -%}
+      {{ icon_by_status(status) }}
+    {%- endif -%}
+{%- endmacro -%}
+
+{%- macro icon_by_direction(direction) -%}
+    {%- if(direction == "incoming") -%}
+        mdi:phone-incoming
+    {%- else -%}
+        mdi:phone-outgoing
+    {%- endif -%}
+{%- endmacro -%}
+
+{%- macro call_alert_type(call) -%}
+    {{- mapping.get(call.finishState).alert_type -}}
+{%- endmacro -%}
+
+{%- macro call_title(call) -%}
+    {%- if (call.device != 'None') -%}
+        {{call.startAt | as_timestamp | timestamp_custom('%d.%m.%Y %H:%M') }} - {{ call.device.name}} 
+    {%- else -%}
+        {{call.startAt | as_timestamp | timestamp_custom('%d.%m.%Y %H:%M') }} 
+    {%- endif -%}
+{%- endmacro -%}
+
+{%- macro call_display(call) -%}
+    {% if call.direction == "incoming" %}
+        {{- resolve_name_by_caller_id(call.get('caller_id', call.get('caller', {}).get('id'))) -}}
+    {% else %}
+        {{- resolve_name_by_caller_id(call.get('callee_id', call.get('callee', {}).get('id'))) -}}
+    {% endif %}
+{%- endmacro -%}
+
+{%- macro duration(call) -%}
+    {%- if (call.startAt != None and call.endAt != None) -%}
+        {{- time_between(call.startAt | as_datetime, call.endAt | as_datetime) -}}
+    {%- else -%}
+        --:--:--
+    {%- endif -%}
+{%- endmacro -%}
+
+{%- macro status_friendly_by_entity(entity) -%}
+    {%- if is_state(entity, 'idle') -%}
+        Frei
+    {%- elif is_state(entity, 'calling') -%}
+        Wählt: {{state_attr(entity, 'callee').display }}
+    {%- elif is_state(entity, 'notReached') -%}
+        Nicht erreicht: {{state_attr(entity, 'callee').display }}
+    {%- elif is_state(entity, 'ringing') -%}
+        Ruft an: {{state_attr(entity, 'caller').display }}
+    {%- elif is_state(entity, 'missedCall') -%}
+        Anruf verpasst: {{state_attr(entity, 'caller').display }}
+    {%- elif is_state(entity, 'talking') -%}
+        Spricht mit {{ call_display({caller_id: state_attr(entity, 'caller').id, callee_id: state_attr(entity, 'callee').id,}) }}
+    {%- elif is_state(entity, 'finished') -%}
+        Beendet: {{ iif(is_state_attr(entity, 'direction', 'incoming'), state_attr(entity, 'caller').display, state_attr(entity, 'callee').display) }}
+    {%- endif -%}
+{%- endmacro -%}
+
+{%- macro details_friendly_by_entity(entity) -%}
+    {%- if is_state(entity, 'idle') and  state_attr(entity, 'end') -%} 
+        seit {{ state_attr(entity, 'end') | as_timestamp | timestamp_custom('%d.%m. um %H:%M:%S') }} 
+    {%- elif is_state(entity, 'calling') -%}
+        {{ state_attr(entity, 'device').display }} ({{ state_attr(entity, 'msn') }}) - seit {{ state_attr(entity, 'start') | as_timestamp | timestamp_custom('%H:%M:%S') }}
+    {%- elif is_state(entity, 'notReached') -%}
+        {{ state_attr(entity, 'device').display }} ({{ state_attr(entity, 'msn') }}) - seit {{ state_attr(entity, 'start') | as_timestamp | timestamp_custom('%H:%M:%S') }}
+    {%- elif is_state(entity, 'ringing') -%}
+        an {{ state_attr(entity, 'msn') }} - {{ state_attr(entity, 'start') | as_timestamp | timestamp_custom('%H:%M:%S') }}
+    {%- elif is_state(entity, 'missedCall') -%}
+        an {{ state_attr(entity, 'msn') }} - {{ state_attr(entity, 'start') | as_timestamp | timestamp_custom('%H:%M:%S') }}
+    {%- elif is_state(entity, 'talking') -%}
+        {{ state_attr(entity, 'device').display }} ({{ state_attr(entity, 'msn') }}) - seit {{ state_attr(entity, 'start') | as_timestamp | timestamp_custom('%H:%M:%S') }}
+    {%- elif is_state(entity, 'finished') -%}
+        {{ state_attr(entity, 'device').display  }} ({{ state_attr(entity, 'msn') }}) - seit {{ state_attr(entity, 'start') | as_timestamp | timestamp_custom('%H:%M:%S') }}
+    {%- endif -%}
+{%- endmacro -%}
+
+{%- macro icon_by_entity(entity) -%}
+    {{- icon_by_status(states(entity)) -}}
+{%- endmacro -%}
+
+{%- macro color_by_entity(entity) -%}
+    {{- color_by_status_direction(states(entity)) -}}
+{%- endmacro -%}

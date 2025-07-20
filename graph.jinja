@@ -1,0 +1,47 @@
+{%- set thresholds = [
+        {"value": -10, "color": "#ff00ff"},
+        {"value": -8, "color": "#ff94ff"},
+        {"value": -6, "color": "#3800d1"},
+        {"value": -4, "color": "#325afe"},
+        {"value": -2, "color": "#2695ff"},
+        {"value": 0, "color": "#00cdff"},
+        {"value": 2, "color": "#007800"},
+        {"value": 4, "color": "#009d00"},
+        {"value": 6, "color": "#00bc02"},
+        {"value": 8, "color": "#00e200"},
+        {"value": 10, "color": "#00ff00"},
+        {"value": 12, "color": "#fcff00"},
+        {"value": 14, "color": "#fdf200"},
+        {"value": 16, "color": "#fde100"},
+        {"value": 18, "color": "#ffd100"},
+        {"value": 20, "color": "#ffbd00"},
+        {"value": 22, "color": "#ffad00"},
+        {"value": 24, "color": "#ff9c00"},
+        {"value": 26, "color": "#ff7800"},
+        {"value": 28, "color": "#ff0000"},
+        {"value": 30, "color": "#f30102"},
+        {"value": 32, "color": "#d20000"},
+        {"value": 30, "color": "#c10000"},
+        {"value": 34, "color": "#b10000"},
+        {"value": 36, "color": "#a10000"},
+        {"value": 38, "color": "#900000"},
+        {"value": 42, "color": "#770100"},
+    ] 
+-%}
+
+{%- macro _find_closest_even(value) %}
+    {%- set closest_even = value|round(0, 'floor')|int %}
+    {%- if closest_even % 2 != 0 %}
+        {%- set closest_even = closest_even - 1 %}
+    {%- endif %}
+    {{- closest_even -}}
+{%- endmacro %}
+
+{%- macro temperature_color(value) %}
+    {%- set closest_even = _find_closest_even(value)|int %}
+    {%- for threshold in thresholds %}
+        {%- if threshold.value == closest_even %}
+            {{- threshold.color -}}
+        {%- endif %}
+    {%- endfor %}
+{%- endmacro %}

@@ -1,0 +1,36 @@
+{# 
+    {%- from 'eiswarnung.jinja' import color, label, borderColor,backgroundColor, icon -%}
+#}
+
+
+{%- set mappings = {
+    "0": {"label":"Kein Eis", "backgroundColor": "#3333cc", "icon":"mdi:snowflake-off"},
+    "1": {"label":"Eis", "color": "#3333cc", "borderColor": "#00cdff", "backgroundColor": "#d1f7ff", "icon":"mdi:snowflake-alert"},
+    "2": {"label":"Vllt. Eis", "color": "#3333cc", "borderColor": "#00cdff", "backgroundColor": "#c1f2ff", "icon":"mdi:snowflake-thermometer"},
+} -%}
+
+{%- macro _forecastId(entity) -%}
+    {{- state_attr(entity, 'forecastId') | default("") | trim -}}
+{%- endmacro -%}
+
+{%- macro color(entity) -%}
+    {{- mappings[_forecastId(entity)].color | default('#ffffff') -}}
+{%- endmacro -%}
+
+{%- macro backgroundColor(entity) -%}
+    {{- mappings[_forecastId(entity)].backgroundColor | default('#6666cc') -}}
+{%- endmacro -%}
+
+{%- macro borderColor(entity) -%}
+    {{- mappings[_forecastId(entity)].borderColor | default('none') -}}
+{%- endmacro -%}
+
+{%- macro label(entity) -%}
+    {{- mappings[_forecastId(entity)].label -}}
+{%- endmacro -%}
+
+{%- macro icon(entity) -%}
+    {{- mappings[_forecastId(entity)].icon -}}
+{%- endmacro -%}
+
+

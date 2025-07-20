@@ -1,0 +1,29 @@
+{# 
+    {%- from 'app.jinja' import entity_picture -%}
+#}
+
+{%- set mapping = {
+    "Amazon Prime": {"entity_picture": "/local/logo/amazon_prime_256.webp"},
+    "ARD Mediathek": {"entity_picture": "/local/logo/ard_mediathek_256.webp"},
+    "dream Player TV": {"entity_picture": "/local/logo/dream_player_tv_256.webp"},
+    "Disney+": {"entity_picture": "/local/logo/disney_plus_256.webp"},
+    "Joyn": {"entity_picture": "/local/logo/joyn_256.webp"},
+    "Netflix": {"entity_picture": "/local/logo/netflix_256.webp"},
+    "SoundCloud": {"entity_picture": "/local/logo/soundcloud_256.webp"},
+    "Play SRF": {"entity_picture": "/local/logo/play_srf_256.webp"},
+    "Pluto TV": {"entity_picture": "/local/logo/plutotv_256.webp"},
+    "YouTube": {"entity_picture": "/local/logo/youtube_256.png"},
+    "ZDF": {"entity_picture": "/local/logo/zdf_256.webp"},
+} -%}
+
+
+{%- macro _get(app_name, attr) -%}
+  {%- set item = mapping.get(app_name | trim) or {} -%}
+  {{- item.get(attr | trim) -}}
+{%- endmacro -%}
+
+
+{%- macro entity_picture(app_name) -%}
+  {{- _get(app_name, 'entity_picture') -}}
+{%- endmacro -%}
+

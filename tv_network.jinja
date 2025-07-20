@@ -1,0 +1,17 @@
+{# 
+    Import this file in your template to get the TV network label and
+    {%- from 'tv_network.jinja' import label, logo -%}
+#}
+
+{%- set tv_networks = {
+    "orf_1": {"label":"ORF 1", "logo":"/local/logo/orf_1.svg"},
+    "servus_tv": {"label":"Servus TV", "logo":"/local/logo/servus_tv.svg"},
+} -%}
+
+{%- macro label(tv_network_id) -%}
+    {{- tv_networks.get(tv_network_id).label | default(None) -}}
+{%- endmacro -%}
+
+{%- macro logo(tv_network_id) -%}
+    {{- tv_networks.get(tv_network_id).logo | default(None) -}}
+{%- endmacro -%}

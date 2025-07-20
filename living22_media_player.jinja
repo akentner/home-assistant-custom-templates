@@ -1,0 +1,60 @@
+{% set source_list = {
+  "media_player.living22_alexa_echo": {
+    "friendly_name": "Alexa Echo",
+    "audio_entity": "media_player.living22_alexa_echo",
+    "icon": "phu:alexa-logo",
+  },
+  "media_player.living22_chromecast": {
+    "friendly_name": "Chromecast",
+    "audio_entity": "media_player.living22_rx473_ynca",
+    "icon": "si:chromecast",
+  },
+  "media_player.living22_ps5": {
+    "friendly_name": "PlayStation 5",
+    "audio_entity": "media_player.living22_rx473_ynca",
+    "icon": "phu:playstation-5",
+  },
+  "media_player.living22_lgbd": {
+    "friendly_name": "BD/DVD",
+    "audio_entity": "media_player.living22_rx473_ynca",
+    "icon": "phu:bluray",
+  },
+  "media_player.living22_vuduo4k": {
+    "friendly_name": "Fernsehen",
+    "audio_entity": "media_player.living22_rx473_ynca",
+    "icon": "mdi:set-top-box",
+  },
+  "media_player.living22_rx473_ynca": {
+    "friendly_name": "Yamaha",
+    "audio_entity": "media_player.living22_rx473_ynca",
+    "icon": "phu:yamaha-rx-v773",
+  },
+} %}
+
+
+{%- macro _get(entity, attr) -%}
+  {%- set item = source_list.get(entity | trim) or {} -%}
+  {{- item.get(attr | trim) -}}
+{%- endmacro -%}
+
+{%- macro friendly_name(entity) -%}
+  {{- _get(entity, 'friendly_name') -}}
+{%- endmacro -%}
+
+{%- macro icon(entity) -%}
+  {{- _get(entity, 'icon') -}}
+{%- endmacro -%}
+
+{%- macro audio_entity(entity) -%}
+  {{- _get(entity, 'audio_entity') -}}
+{%- endmacro -%}
+
+{%- macro sources_list() -%}
+  {%- for key, value in source_list.items() -%}
+    {{ value.friendly_name }}{{ "," if not loop.last else "" }}
+  {%- endfor -%}
+{%- endmacro -%}
+
+
+
+

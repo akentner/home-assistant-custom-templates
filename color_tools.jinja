@@ -1,0 +1,41 @@
+{# Macro to compute Hue #}
+{%- macro hue(rgb) -%}
+    {%- set r_norm = rgb[0] / 255 -%}
+    {%- set g_norm = rgb[1] / 255 -%}
+    {%- set b_norm = rgb[2] / 255 -%}
+    {%- set max_val = [r_norm, g_norm, b_norm] | max -%}
+    {%- set min_val = [r_norm, g_norm, b_norm] | min -%}
+    {%- set delta = max_val - min_val -%}
+
+    {%- if delta == 0 -%}
+      {{ 0 }}
+    {%- elif max_val == r_norm -%}
+      {{ (60 * ((g_norm - b_norm) / delta) + 360) % 360 }}
+    {%- elif max_val == g_norm -%}
+      {{ (60 * ((b_norm - r_norm) / delta) + 120) }}
+    {%- elif max_val == b_norm -%}
+      {{ (60 * ((r_norm - g_norm) / delta) + 240) }}
+    {%- endif -%}
+{%- endmacro -%}
+
+{# Macro to compute Saturation #}
+{%- macro sat(rgb) -%}
+    {%- set r_norm = rgb[0] / 255 -%}
+    {%- set g_norm = rgb[1] / 255 -%}
+    {%- set b_norm = rgb[2] / 255 -%}
+    {%- set max_val = [r_norm, g_norm, b_norm] | max -%}
+    {%- set min_val = [r_norm, g_norm, b_norm] | min -%}
+    {%- set delta = max_val - min_val -%}
+
+    {%- if max_val == 0 -%}
+      {{ 0 }}
+    {%- else -%}
+      {{- (delta / max_val) * 100 -}}
+    {%- endif -%}
+{%- endmacro -%}
+
+{# Macro to compute Brightness #}
+{%- macro bri(rgb) -%}
+    {% set r, g, b = rgb %}
+    {{- max(r, g, b) | int -}}
+{%- endmacro -%}

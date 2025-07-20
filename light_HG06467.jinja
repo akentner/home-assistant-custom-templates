@@ -1,0 +1,68 @@
+{#
+Import this file in your template to get the first effect name, all effects names and the payload for the effect.
+
+    {%- from 'light_HG06467.jinja' import first, effects, payload -%}
+    
+#}
+
+{%- set config_effects = {  
+    "Solid": {
+        "effect": "steady",
+    },
+    "carnaval": {
+        "effect": "carnaval",
+        "speed": 100,
+        "colors": [
+            {"r": 255, "g": 0, "b": 0},
+            {"r": 255, "g": 255, "b": 0},
+            {"r": 0, "g": 255, "b": 0},
+            {"r": 0, "g": 255, "b": 255},
+            {"r": 0, "g": 0, "b": 255},
+            {"r": 255, "g": 0, "b": 255}
+        ]
+    },
+    "Rainbow": {
+        "effect": "rainbow",
+    },
+    "XMas Twinkle": {
+        "effect": "twinkle",
+        "speed": 100,
+        "colors": [
+            {"r": 0, "g": 0, "b": 192},
+            {"r": 255, "g": 255, "b": 255},
+            {"r": 0, "g": 255, "b": 255}
+        ]
+    },
+    "XMas Glow": {
+        "effect": "glow",
+        "speed": 100,
+        "colors": [
+            {"r": 0, "g": 0, "b": 192},
+            {"r": 255, "g": 255, "b": 255},
+            {"r": 0, "g": 255, "b": 255}
+        ]
+    },
+} -%}
+
+{# all effects names  #}
+{%- macro first() -%}
+    {{- (config_effects.keys() | list)[0]  -}}
+{%- endmacro -%}
+
+{# all effects names  #}
+{%- macro effects() -%}
+    {{- config_effects.keys() | list -}}
+{%- endmacro -%}
+
+{# Macro build effect payload #}
+{%- macro payload(effect, rgb_color) -%}
+    {%- set r, g, b = (rgb_color or (0,0,0)) -%}
+    {%- set config_effect = config_effects[effect] or config_effects[first()] -%}
+    {{- {
+        "effect": {
+            "effect": config_effect.effect or "steady",
+            "speed": config_effect.speed or 0,
+            "colors": config_effect.colors or [{ "r": r, "g": g, "b": b }],
+        } 
+    } | to_json(pretty_print=False) -}}
+{%- endmacro -%}

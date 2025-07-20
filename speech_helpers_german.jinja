@@ -1,0 +1,46 @@
+{%- macro _islist(object) -%}
+    {{ object is iterable and (object is not string and object is not mapping) }}
+{%- endmacro -%}
+
+{%- macro plural(word_singular, word_plural, quantity, show_quantity=true) -%}
+    {%- if is_number(quantity) -%}
+        {%- if show_quantity -%} {{ quantity }} {% endif -%}
+        {%- if (quantity | abs) == 1 -%}
+            {{ iif(word_singular != '', word_singular, '') }}
+        {%- else -%}
+            {{ iif(word_plural != '', word_plural, '') }}
+        {%- endif -%}
+    {%- endif -%}
+{%- endmacro -%}
+
+{%- macro plural_verb(quantity) -%}
+    {%- if is_number(quantity) -%}
+        {{ iif(quantity | abs == 1, 'ist', 'sind') }}
+    {%- endif -%}
+{%- endmacro -%}
+
+{%- macro plural_word_and_verb(word_singular, word_plural, quantity, show_quantity=true, verb_first=true) -%}
+    {%- if verb_first -%}
+        {{ plural_verb(quantity) }} {{ plural(word_singular, word_plural, quantity, show_quantity) }}
+    {%- else -%}
+        {{ plural(word_singular, word_plural, quantity, show_quantity) }} {{ plural_verb(quantity) }}
+    {%- endif -%}
+{%- endmacro -%}
+
+{%- macro array_to_separated_list(array, separator=', ', replace_last_separator=true, convert_to_title=false) -%}
+    {%- set text = (array | join(separator)) -%}
+
+    {%- if replace_last_separator -%}
+        {{ (iif(convert_to_title, (text | title), text).rsplit(separator, 1) | join(' und ')) }}
+    {%- else -%}
+        {{ iif(convert_to_title, (text | title), text) }}
+    {%- endif -%}
+{%- endmacro -%}
+
+{%- macro array_to_bullet_points_list(array, bullet_symbol='- ') -%}
+    {%- if (_islist(array) | bool) -%}
+        {%- for element in array -%}
+            {{ bullet_symbol }} {{ element }}<br/>
+        {%- endfor -%}
+    {%- endif -%}
+{%- endmacro -%}

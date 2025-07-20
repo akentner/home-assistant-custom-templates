@@ -1,0 +1,58 @@
+{#
+    {%- from 'iphone.jinja' import color, icon -%}    
+#}
+
+{%
+  set icon_mapping = {
+    "not-charging|0":  "mdi:battery-alert",
+    "not-charging|10": "mdi:battery-10",
+    "not-charging|20": "mdi:battery-20",
+    "not-charging|30": "mdi:battery-30",
+    "not-charging|40": "mdi:battery-40",
+    "not-charging|50": "mdi:battery-50",
+    "not-charging|60": "mdi:battery-60",
+    "not-charging|70": "mdi:battery-70",
+    "not-charging|80": "mdi:battery-80",
+    "not-charging|90": "mdi:battery-90",
+    "not-charging|100": "mdi:battery",
+    "charging|0": "mdi:battery-charging",
+    "charging|10": "mdi:battery-charging-10",
+    "charging|20": "mdi:battery-charging-20",
+    "charging|30": "mdi:battery-charging-30",
+    "charging|40": "mdi:battery-charging-40",
+    "charging|50": "mdi:battery-charging-50",
+    "charging|60": "mdi:battery-charging-60",
+    "charging|70": "mdi:battery-charging-70",
+    "charging|80": "mdi:battery-charging-80",
+    "charging|90": "mdi:battery-charging-90",
+    "charging|100": "mdi:battery-charging-100",
+    "full|100": "mdi:battery",
+  }
+%}
+
+{%- macro _battery_state_from_battery_level_entity(entity) -%}
+    {{ entity | replace('_battery_level','_battery_state') }}
+{%- endmacro -%}
+
+{%- macro icon(entity) -%}
+    {% set slot = ((states(entity) | int / 10) | int) * 10 %}
+    {% set battery_state_entity = _battery_state_from_battery_level_entity(entity)%}
+    {% set battery_state = states(battery_state_entity) | replace(' ', '-') | lower %}
+
+    {{ icon_mapping.get(battery_state ~ "|" ~ slot) }}
+{%- endmacro -%}
+
+{%- macro color(entity) -%}
+    {%- set battery = states(entity) | int -%}
+    {%- set battery_state_entity = _battery_state_from_battery_level_entity(entity) -%}
+    {%- set lowPowerMode = states(battery_state_entity, 'Low Power Mode') -%}
+
+    {%- if battery <= 10 -%}
+      red
+    {%- elif(lowPowerMode == True) -%}
+      yellow
+    {%- else -%}
+      green
+    {%- endif -%}
+{%- endmacro -%}
+

@@ -1,0 +1,65 @@
+{#
+Import this file in your template to get the first effect name, all effects names and the payload for the effect.
+
+    {%- from 'meteoalarm.jinja' import type, icon, color, text_color -%}
+    
+#}
+
+{%- set events = {
+    "wind":             {"icon": "mdi:weather-windy", },
+    "snow-ice":         {"icon": "mdi:weather-snowy-heavy", },
+    "thunderstorm":     {"icon": "mdi:weather-lightning", },
+    "fog":              {"icon": "mdi:weather-fog", },
+    "high-temperature": {"icon": "mdi:thermometer", },
+    "low-temperature":  {"icon": "mdi:snowflake", },
+    "coastalevent":     {"icon": "mdi:tsunami", },
+    "forest-fire":      {"icon": "mdi:pine-tree-fire", },
+    "avalanches":       {"icon": "mdi:image-filter-hdr", },
+    "rain":             {"icon": "mdi:weather-pouring", },
+    "unknown":          {"icon": "mdi:alert-circle-outline", },
+    "flooding":         {"icon": "mdi:home-flood", },
+    "rain-flood":       {"icon": "mdi:home-flood", },
+    "uv":               {"icon": "mdi:sun-wireless-outline", },
+} -%}
+
+{%- set levels = {
+    "1" : {"name":"None", "color": "inherit", "text_color": "var(--primary-text-color)"},
+    "2" : {"name":"Yellow", "color": "#ffa600", "text_color": "#000000"},
+    "3" : {"name":"Orange", "color": "#ee5a24", "text_color": "#000000"},
+    "4" : {"name":"Red", "color": "#db4437", "text_color": "#ffffff"}, 
+} -%}
+
+{%- macro type(entity) -%}
+    {{- _awareness_type(entity) -}}
+{%- endmacro -%}
+
+{%- macro icon(entity) -%}
+    {%- set type = _awareness_type(entity) -%}
+    {%- set event = events.get(type) or events.get('unknown') -%}
+    {{- event.icon -}}
+{%- endmacro -%}
+
+{%- macro color(entity) -%}
+    {% set level = _awareness_level(entity) %}
+    {{- (levels.get(level) or levels.get('1')).color -}}
+{%- endmacro -%}
+
+{%- macro text_color(entity) -%}
+    {% set level = _awareness_level(entity) %}
+    {{- (levels.get(level) or levels.get('1')).text_color -}}
+{%- endmacro -%}
+
+{%- macro _awareness_type(entity) -%}
+    {%- set awareness_type = state_attr(entity, "awareness_type") or "11; unknown" -%}
+    {%- set awareness_type_list = awareness_type.split('; ') -%}
+    {%- if ((awareness_type_list | count) == 1) -%}
+      {{ awareness_type_list[0] | lower }}
+    {%- elif ((awareness_type_list | count) > 1) -%}
+      {{ awareness_type_list[1] | lower }}
+    {%- endif -%}
+{%- endmacro -%}
+
+{%- macro _awareness_level(entity) -%}
+    {% set level = state_attr(entity, "awareness_level") or "1; unknown; Unknown" %}
+    {{- level.split('; ')[0] or '1' -}}
+{%- endmacro -%}

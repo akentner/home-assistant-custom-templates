@@ -1,0 +1,85 @@
+{%- set mappings = {
+    "dwd": {
+        "sender": "Deutscher Wetterdienst",
+        "picture": "https://warnung.bund.de/assets/icons/report_unwetterwarnung.svg",
+        "icon": "fapro:nina-unwetterwarnung",
+        "levels": {
+            "Extreme": {"label": "Extremes Unwetter", "color": "#880e4f", "icon": "mdi:alert-decagram"},
+            "Severe": {"label": "Unwetter", "color": "#e53935", "icon": "mdi:alert-circle"},
+            "Moderate": {"label": "Markantes Wetter", "color": "#fb8c00", "icon": "mdi:alert"}
+        }
+    },
+    "lhp": {
+        "sender": "Hochwasserzentralen",
+        "picture": "https://warnung.bund.de/assets/icons/report_hochwasser.svg",
+        "icon": "fapro:nina-hochwasser",
+        "levels": {
+            "Severe": {"label": "Großes Hochwasser", "color": "#e53935", "icon": "mdi:alert-circle"},
+            "Moderate": {"label": "Markantes Wetter", "color": "#fb8c00", "icon": "mdi:alert"},
+            "Unknown": {"label": "Vorwarnung", "color": "transparent", "icon": "mdi:information"}
+        }
+    },
+    "mow": {
+        "sender": "MoWaS",
+        "picture": "https://warnung.bund.de/assets/icons/report_mowas.svg",
+        "icon": "fapro:nina-mowas",
+        "levels": {
+            "Extreme": {"label": "Extreme Gefahr", "color": "#880e4f", "icon": "mdi:alert-decagram"},
+            "Severe": {"label": "Gefahr", "color": "#e53935", "icon": "mdi:alert-circle"},
+            "Moderate": {"label": "Gefahreninformation", "color": "#fb8c00", "icon": "mdi:alert"},
+            "Minor": {"label": "Gefahreninformation", "color": "#fb8c00", "icon": "mdi:information"},
+            "Cancel": {"label": "Entwarnung", "color": "#fb8c00", "icon": "mdi:cancel"}
+        }
+    },
+    "kat": {
+        "sender": "KatWarn",
+        "picture": "https://warnung.bund.de/assets/icons/report_mowas.svg",
+        "icon": "fapro:nina-mowas",
+        "levels": {
+            "Unknown": {"label": "Extreme Gefahr", "color": "#880e4f", "icon": "mdi:alert-decagram"},
+            "Extreme": {"label": "Extreme Gefahr", "color": "#880e4f", "icon": "mdi:alert-decagram"},
+            "Severe": {"label": "Gefahr", "color": "#e53935", "icon": "mdi:alert-circle"},
+            "Moderate": {"label": "Gefahreninformation", "color": "#fb8c00", "icon": "mdi:alert"},
+            "Minor": {"label": "Gefahreninformation", "color": "#fb8c00", "icon": "mdi:information"},
+            "Cancel": {"label": "Entwarnung", "color": "#fb8c00", "icon": "mdi:cancel"}
+        }
+    }
+} -%}
+
+
+{%- macro sender(entity) -%}
+    {{- mappings[_sender_id(entity)].sender -}}
+{%- endmacro -%}
+
+{%- macro icon(entity) -%}
+    {{- mappings[_sender_id(entity)].icon -}}
+{%- endmacro -%}
+
+{%- macro badge_icon(entity) -%}
+    {%- set severity = state_attr(entity, 'severity') or 'Unknown' -%}
+    {{- mappings[_sender_id(entity)].levels[severity].icon -}}
+{%- endmacro -%}
+
+{%- macro picture(entity) -%}
+    {{- mappings[_sender_id(entity)].picture -}}
+{%- endmacro -%}
+
+{%- macro color(entity) -%}
+    {%- set severity = state_attr(entity, 'severity') or 'Unknown' -%}
+    {%- set headline = state_attr(entity, 'headline') -%}
+    {%- if ('Entwarnung' in headline) or ('Aufhebung' in headline) -%}
+    #008000
+    {%- else -%}
+      {{- mappings[_sender_id(entity)].levels[severity].color -}}
+    {%- endif -%}    
+{%- endmacro -%}
+
+{%- macro label(entity) -%}
+    {%- set severity = state_attr(entity, 'severity') or 'Unknown' -%}
+    {{- mappings[_sender_id(entity)].levels[severity].label -}}
+{%- endmacro -%}
+
+{%- macro _sender_id(entity) -%}
+    {{- state_attr(entity, 'id').split('.')[0]|lower }}
+{%- endmacro -%}
+

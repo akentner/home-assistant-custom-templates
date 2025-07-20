@@ -1,0 +1,19 @@
+{%- set mapping = {
+  "0": {"text": "gering", "color": "green"},
+  "1": {"text": "mittel", "color": "yellow"},
+  "2": {"text": "hoch", "color": "red"},
+  "3": {"text": "sehr hoch", "color": "#ff00ff"},
+} -%}
+
+{%- macro _get_item(entity, attr) -%}
+  {% set level = states(entity) -%}
+  {{- mapping[level][attr] -}}
+{%- endmacro -%}
+
+{%- macro text(entity) -%}
+  {{- _get_item(entity, 'text') -}}
+{%- endmacro -%}
+
+{%- macro color(entity) -%}
+  {{- _get_item(entity, 'color') -}}
+{%- endmacro -%}

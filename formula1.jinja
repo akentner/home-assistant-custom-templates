@@ -1,0 +1,34 @@
+{# 
+    Import this file in your template to get the TV network label and
+    {%- from 'formula1.jinja' import tv_network_id -%}
+#}
+
+{%- set races = {
+    "albert_park": {"label":"Melbourne", "tv_network":"orf_1"},
+    "shanghai": {"label":"Shanghai", "tv_network":"servus_tv"},
+    "suzuka": {"label":"Suzuka", "tv_network":"orf_1"},
+    "jeddah": {"label":"Bahrain", "tv_network":"servus_tv"},
+    "miami": {"label":"Miami", "tv_network":"servus_tv"},
+    "imola": {"label":"Imola", "tv_network":"orf_1"},
+    "monaco": {"label":"Monaco", "tv_network":"servus_tv"},
+    "catalunya": {"label":"Barcelona", "tv_network":"orf_1"},
+    "villeneuve": {"label":"Montreal", "tv_network":"servus_tv"},
+    "red_bull_ring": {"label":"Spielberg", "tv_network":"orf_1"},
+    "silverstone": {"label":"Silverstone", "tv_network":"servus_tv"},
+    "spa": {"label":"Spa", "tv_network":"orf_1"},
+    "hungaroring": {"label":"Budapest", "tv_network":"servus_tv"},
+    "zandvoort": {"label":"Zandvoort", "tv_network":"orf_1"},
+    "monza": {"label":"Monza", "tv_network":"servus_tv"},
+    "baku": {"label":"Baku", "tv_network":"orf_1"},
+    "marina_bay": {"label":"Singapur", "tv_network":"servus_tv"},
+    "americas": {"label":"Austin", "tv_network":"orf_1"},
+    "rodriguez": {"label":"Mexico City", "tv_network":"servus_tv"},
+    "interlagos": {"label":"São Paulo", "tv_network":"orf_1"},
+    "vegas": {"label":"Las Vegas", "tv_network":"servus_tv"},
+    "losail": {"label":"Doha", "tv_network":"orf_1"},
+    "yas_marina": {"label":"Abu Dhabi", "tv_network":"servus_tv"},
+} -%}
+
+{%- macro tv_network_id(race_id) -%}
+    {{- races.get(race_id).tv_network | default(None) -}}
+{%- endmacro -%}

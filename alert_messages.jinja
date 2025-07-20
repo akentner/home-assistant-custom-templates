@@ -1,0 +1,9 @@
+{%- from 'windows_doors.jinja' import open_group_entites %}
+
+{%- macro house22_open_windows_doors_message() -%}
+    {{ open_group_entites('binary_sensor.house22_alarm_relevant_windows_doors', 'text') }}
+{%- endmacro -%}
+
+{%- macro house22_open_windows_doors_done_message() -%}
+house22_open_windows_doors_at_night_done_message
+{%- endmacro -%}

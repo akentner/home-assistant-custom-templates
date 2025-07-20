@@ -1,0 +1,60 @@
+{%- set mappings = {
+    "OL": {"backgroundColor": "", "text_color": "white", "status": "Netzbetrieb"},
+    "OL CHRG": {"backgroundColor": "#FF9800", "text_color": "black", "status": "Netzbetrieb (Lädt)"},
+    "OL CHRG LB": {"backgroundColor": "#DB4437", "text_color": "white", "status": "Netzbetrieb (Lädt/Schwache Batterie)"},
+    "OB": {"backgroundColor": "#FF9800", "text_color": "white", "status": "Batteriebetrieb"},
+    "OB DISCHRG": {"backgroundColor": "#FF00FF", "text_color": "white", "status": "Batteriebetrieb"},
+    "OB LB": {"backgroundColor": "#FF00FF", "text_color": "white", "status": "Batteriebetrieb (Schwache Batterie)"},
+} -%}
+
+{%- macro background_color(entity) -%}
+    {{- mappings.get(state_attr(entity, 'status_data')).backgroundColor -}}
+{%- endmacro -%}
+
+{%- macro text_color(entity) -%}
+    {{- mappings.get(state_attr(entity, 'status_data')).text_color -}}
+{%- endmacro -%}
+
+{%- macro status(entity) -%}
+    {{- mappings.get(state_attr(entity, 'status_data')).status -}}
+{%- endmacro -%}
+
+{%- macro primary_text(entity) -%}
+    {{state_attr(entity,'name')}} ist in {{status(entity)}}
+{%- endmacro -%}
+
+{%- macro secondary_text(entity) -%}
+    Akku: {{state_attr(entity, 'battery_charge')}}% - Batterielaufzeit: {{(state_attr(entity, 'battery_runtime')|int / 60) | int }} min 
+{%- endmacro -%}
+
+{%- macro badge_icon(entity) -%}
+    {%- set battery_charge = state_attr(entity, 'battery_charge')|int -%}
+    {%- if battery_charge <= state_attr(entity, 'low_battery_treshold')|int -%}
+      mdi:battery
+    {%- elif battery_charge <= state_attr(entity, 'warning_battery_treshold') | default(50) | int -%}
+      mdi:battery
+    {%- else -%}
+      mdi:battery
+    {%- endif -%}
+{%- endmacro -%}
+
+{%- macro badge_color(entity) -%}
+    {%- set battery_charge = state_attr(entity, 'battery_charge')|int -%}
+    {%- if battery_charge <= state_attr(entity, 'low_battery_treshold')|int -%}
+      #FF9800
+    {%- elif battery_charge <= state_attr(entity, 'warning_battery_treshold')|int -%}
+      #FF9800
+    {%- else -%}
+      #008000
+    {%- endif -%}
+{%- endmacro -%}
+
+{%- macro status_data_interpolated(status_data, battery_charge, low_battery_treshold) -%}
+    {%- if battery_charge|int <= low_battery_treshold|int -%}
+      {{ iif('OL' in status_data, 'OL CHRG LB', 'OB DISCHRG LB') }}
+    {%- elif battery_charge|int < 100 -%}
+      {{ iif('OL' in status_data, 'OL CHRG', 'OB DISCHRG') }}
+    {%- else -%}
+      {{ status_data }}
+    {%- endif -%}
+{%- endmacro -%}

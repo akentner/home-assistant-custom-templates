@@ -1,0 +1,22 @@
+
+{%- macro debug(entity) -%}
+    {{ _iterate_sorted_all(entity) }}
+{%- endmacro -%}
+
+
+{%- macro _iterate_sorted_all(entity) -%}
+    {%- set sorted_all = state_attr(entity, 'sorted_all') | default('[]') | from_json -%}
+    {% for entry in sorted_all %}
+        {%- set id = entry[0] -%}
+        {%- set data = entry[1] -%}
+        <li><b>{{ id }}</b>: {{data|pprint }}</li>
+    {% endfor %}
+{%- endmacro -%}
+
+
+{#
+Usage:
+
+{{ debug('sensor.living22_alexa_echo_next_alarm') }}
+
+#}

@@ -1,0 +1,122 @@
+{#
+    {%- from 'zone_messages.jinja' import message_from_trigger -%}    
+#}
+
+{#
+
+example trigger
+
+{% set trigger = {
+    "id": "0",
+    "idx": "0",
+    "alias": null,
+    "platform": "zone",
+    "entity_id": "person.kara_valentina_kentner",
+    "from_state": {
+      "entity_id": "person.kara_valentina_kentner",
+      "state": "not_home",
+      "attributes": {
+        "editable": true,
+        "id": "kara_valentina_kentner",
+        "device_trackers": [
+          "device_tracker.mobileapp_kara_iphone_13"
+        ],
+        "latitude": 50.15072207902572,
+        "longitude": 8.842761414133797,
+        "gps_accuracy": 3,
+        "source": "device_tracker.mobileapp_kara_iphone_13",
+        "user_id": "9295bc21f12e4ecd90873842c7fc8a4f",
+        "entity_picture": "/api/image/serve/1b325b77ed03823959ce8fc68b70f8f5/512x512",
+        "friendly_name": "Kara Valentina Kentner"
+      },
+      "last_changed": "2025-06-21T18:40:48.301809+00:00",
+      "last_reported": "2025-06-21T20:20:23.270771+00:00",
+      "last_updated": "2025-06-21T20:20:23.270771+00:00",
+      "context": {
+        "id": "01JYA2CF36NTZC6VA9D5D8FKTJ",
+        "parent_id": null,
+        "user_id": null
+      }
+    },
+    "to_state": {
+      "entity_id": "person.kara_valentina_kentner",
+      "state": "home",
+      "attributes": {
+        "editable": true,
+        "id": "kara_valentina_kentner",
+        "device_trackers": [
+          "device_tracker.mobileapp_kara_iphone_13"
+        ],
+        "latitude": 50.167166662500975,
+        "longitude": 8.85049262042757,
+        "gps_accuracy": 19,
+        "source": "device_tracker.mobileapp_kara_iphone_13",
+        "user_id": "9295bc21f12e4ecd90873842c7fc8a4f",
+        "entity_picture": "/api/image/serve/1b325b77ed03823959ce8fc68b70f8f5/512x512",
+        "friendly_name": "Kara Valentina Kentner"
+      },
+      "last_changed": "2025-06-21T20:25:37.918645+00:00",
+      "last_reported": "2025-06-21T20:25:37.918645+00:00",
+      "last_updated": "2025-06-21T20:25:37.918645+00:00",
+      "context": {
+        "id": "01JYA2P2BYVHNDV16VJKESHBC6",
+        "parent_id": null,
+        "user_id": null
+      }
+    },
+    "zone": {
+      "entity_id": "zone.home",
+      "state": "2",
+      "attributes": {
+        "latitude": 50.16719706692896,
+        "longitude": 8.850778788389682,
+        "radius": 72,
+        "passive": false,
+        "persons": [
+          "person.ann_kathrin_kentner",
+          "person.kara_valentina_kentner"
+        ],
+        "editable": true,
+        "icon": "mdi:home",
+        "friendly_name": "zu Hause",
+        "hidden": false
+      },
+      "last_changed": "2025-06-21T20:25:37.919508+00:00",
+      "last_reported": "2025-06-21T20:25:37.919508+00:00",
+      "last_updated": "2025-06-21T20:25:37.919508+00:00",
+      "context": {
+        "id": "01JYA2P2BZPC8DJY0XGBD2246N",
+        "parent_id": null,
+        "user_id": null
+      }
+    },
+    "event": "enter",
+    "description": "person.kara_valentina_kentner entering zu Hause"
+  }
+
+ %}
+
+#}
+
+
+{% set _short_name_mapping = {
+  'person.alexander_kentner': 'Alex',
+  'person.ann_kathrin_kentner': 'Ann-Ka',
+  'person.kara_valentina_kentner': 'Kara',
+}
+%}
+
+
+{%- macro message_from_trigger(trigger) -%}
+  {%- set person_name = _resolve_person_name(trigger.entity_id) -%}
+  {% if(trigger.event == 'enter') %}
+    {{ person_name ~ ' ist jetzt beim ' ~ trigger.zone.attributes.friendly_name }}
+  {% elif(trigger.event == 'leave') %}
+    {{ person_name ~ ' hat ' ~ trigger.zone.attributes.friendly_name ~ ' verlassen' }}
+  {% endif %}
+{%- endmacro -%}
+
+{%- macro _resolve_person_name(entity_id, use_short_name = True) -%}
+  {{ iif(use_short_name, _short_name_mapping.get(entity_id) or state_attr(entity_id, 'friendly_name'), state_attr(entity_id, 'friendly_name')) }}
+{%- endmacro -%}
+
